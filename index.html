@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Display with Meme</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #time {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .meme-container {
+            width: 200px;
+            height: 200px;
+        }
+
+        .meme-container img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div id="time"></div>
+    <div class="meme-container">
+        <img src="https://i.pinimg.com/564x/5f/a0/04/5fa004c77dcc99f43701294e27dd7a64.jpg" alt="Meme">
+    </div>
+
+    <script>
+        function updateTime() {
+            const timeDisplay = document.getElementById('time');
+            const now = new Date();
+            timeDisplay.textContent = now.toLocaleTimeString();
+        }
+
+        // Update time immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
