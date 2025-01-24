@@ -1,34 +1,96 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import axios from 'axios'
+import toast, { Toaster } from 'react-hot-toast'
 import './App.css'
 
+const celebrities = [
+  "Taylor Swift", "Brad Pitt", "Lady Gaga", "Tom Cruise", 
+  "Beyoncé", "Leonardo DiCaprio", "Madonna", "Johnny Depp",
+  "Angelina Jolie", "Justin Bieber", "Jennifer Lawrence",
+  "Will Smith", "Rihanna", "Robert Downey Jr.", "Adele"
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
+  const [currentCelebrity, setCurrentCelebrity] = useState('')
+
+  const generateImage = async () => {
+    setLoading(true)
+    const celebrity = celebrities[Math.floor(Math.random() * celebrities.length)]
+    setCurrentCelebrity(celebrity)
+    
+    try {
+      const response = await axios.post('https://api.deepai.org/api/text2img', {
+        text: `${celebrity} and Barack Obama holding hands together, realistic photo`,
+      }, {
+        headers: {
+          'api-key': '04499a02-421c-4d6c-8eac-d5a8ed1ce249'
+        }
+      })
+      
+      setImageUrl(response.data.output_url)
+    } catch (error) {
+      toast.error('Failed to generate image')
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const copyImage = async () => {
+    try {
+      const response = await fetch(imageUrl)
+      const blob = await response.blob()
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob
+        })
+      ])
+      toast.success('Image copied to clipboard!')
+    } catch (error) {
+      toast.error('Failed to copy image')
+      console.error(error)
+    }
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="container">
+      <Toaster position="top-center" />
+      
+      {currentCelebrity && imageUrl && (
+        <h2 className="caption">
+          Obama and {currentCelebrity} are apparently together!
+        </h2>
+      )}
+      
+      {imageUrl && (
+        <img 
+          src={imageUrl} 
+          alt={`Obama and ${currentCelebrity}`}
+          className="generated-image"
+        />
+      )}
+      
+      <div className="button-container">
+        <button 
+          onClick={generateImage} 
+          disabled={loading}
+          className="generate-btn"
+        >
+          {loading ? 'Generating...' : 'Generate Celebrity Couple'}
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        
+        {imageUrl && (
+          <button 
+            onClick={copyImage}
+            className="copy-btn"
+          >
+            Copy Image
+          </button>
+        )}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
